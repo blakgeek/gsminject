@@ -77,20 +77,20 @@ func main() {
 		cmd.Start()
 		var wg sync.WaitGroup
 		wg.Add(2)
-		go pipeOutput(stdout, &wg)
-		go pipeOutput(stderr, &wg)
+		go pipeOutput(stdout, os.Stdout, &wg)
+		go pipeOutput(stderr, os.Stderr, &wg)
 		cmd.Wait()
 	}
 }
 
-func pipeOutput(output io.Reader, wg *sync.WaitGroup) {
+func pipeOutput(output io.Reader, writer io.Writer, wg *sync.WaitGroup) {
 
 	defer wg.Done()
 
 	scanner := bufio.NewScanner(output)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+		fmt.Fprintln(writer, scanner.Text())
 	}
 }
 
