@@ -48,6 +48,16 @@ func TestParseSecretEnvDefaultVersion(t *testing.T) {
 	}
 }
 
+func TestParseSecretMountedSpecificVersionAt(t *testing.T) {
+
+	expected := &ParsedSecret{envVar: "X", filePath: "/secrets/FOO/bar", secretName: "projects/project/secrets/SECRET/versions/1"}
+	value := "X=secret:SECRET:1@/secrets/FOO/bar"
+	project := "project"
+	actual, ok := ParseSecret(value, project)
+	if !ok || !reflect.DeepEqual(actual, expected) {
+		t.Fatalf("Specific version wrong %s != %s", expected, actual)
+	}
+}
 func TestParseSecretMountedSpecificVersion(t *testing.T) {
 
 	expected := &ParsedSecret{envVar: "X", filePath: "/secrets/FOO/bar", secretName: "projects/project/secrets/SECRET/versions/1"}

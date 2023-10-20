@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 )
@@ -137,7 +138,8 @@ func ParseSecret(value string, project string) (*ParsedSecret, bool) {
 		return nil, false
 	}
 	result.envVar = kvp[0]
-	secretParts := strings.Split(kvp[1][7:], "|")
+	re := regexp.MustCompile("[@|]")
+	secretParts := re.Split(kvp[1][7:], 2)
 	result.secretName = GenerateSecretUrl(secretParts[0], project)
 
 	if len(secretParts) == 2 {
