@@ -2,7 +2,7 @@ package main
 
 import (
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
-	sm "cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
+	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"context"
 	"flag"
 	"fmt"
@@ -100,7 +100,7 @@ func WriteSecretFile(filePath string, secret string) bool {
 func LoadSecretValue(client *secretmanager.Client, name string) string {
 
 	ctx := context.Background()
-	result, err := client.AccessSecretVersion(ctx, &sm.AccessSecretVersionRequest{
+	result, err := client.AccessSecretVersion(ctx, &secretmanagerpb.AccessSecretVersionRequest{
 		Name: name,
 	})
 	if err != nil {
