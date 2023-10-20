@@ -1,17 +1,20 @@
 package main
 
 import (
+	"bufio"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"context"
 	"flag"
 	"fmt"
 	"golang.org/x/oauth2/google"
+	"io"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 type ParsedSecret struct {
@@ -69,8 +72,25 @@ func main() {
 	}
 
 	if cmd != nil {
-		out, _ := cmd.CombinedOutput()
-		fmt.Printf("%s\n", out)
+		stdout, _ := cmd.StdoutPipe()
+		stderr, _ := cmd.StderrPipe()
+		cmd.Start()
+		var wg sync.WaitGroup
+		wg.Add(2)
+		go pipeOutput(stdout, &wg)
+		go pipeOutput(stderr, &wg)
+		cmd.Wait()
+	}
+}
+
+func pipeOutput(output io.Reader, wg *sync.WaitGroup) {
+
+	defer wg.Done()
+
+	scanner := bufio.NewScanner(output)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
 	}
 }
 
